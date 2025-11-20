@@ -43,6 +43,11 @@ export const categoryApi = {
     getAll: () => api.get('/categories'),
 };
 
+// Promotions API
+export const promotionApi = {
+    getActive: () => api.get('/promotions'),
+};
+
 // Cart API
 export const cartApi = {
     getCart: () => api.get('/cart'),
