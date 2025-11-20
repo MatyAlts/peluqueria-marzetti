@@ -25,21 +25,22 @@ public class CartController {
     
     @GetMapping
     public ResponseEntity<CartDTO> getCart(
-            @RequestHeader("X-Session-Id") String sessionId,
+            @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
             @AuthenticationPrincipal UserDetails userDetails) {
         Long userId = resolveUserId(userDetails);
-        CartDTO cart = cartService.getCart(sessionId, userId);
+        CartDTO cart = cartService.getCart(resolveSessionId(sessionId, userId), userId);
         return ResponseEntity.ok(cart);
     }
     
     @PostMapping("/items")
     public ResponseEntity<CartItemDTO> addToCart(
-            @RequestHeader("X-Session-Id") String sessionId,
+            @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody AddToCartRequest request
     ) {
         Long userId = resolveUserId(userDetails);
-        CartItemDTO cartItem = cartService.addToCart(sessionId, userId, request);
+        String sid = resolveSessionId(sessionId, userId);
+        CartItemDTO cartItem = cartService.addToCart(sid, userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(cartItem);
     }
     
@@ -63,10 +64,10 @@ public class CartController {
     
     @DeleteMapping
     public ResponseEntity<Void> clearCart(
-            @RequestHeader("X-Session-Id") String sessionId,
+            @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
             @AuthenticationPrincipal UserDetails userDetails) {
         Long userId = resolveUserId(userDetails);
-        cartService.clearCart(sessionId, userId);
+        cartService.clearCart(resolveSessionId(sessionId, userId), userId);
         return ResponseEntity.noContent().build();
     }
     
@@ -77,5 +78,16 @@ public class CartController {
         return userRepository.findByUsername(userDetails.getUsername())
                 .map(User::getId)
                 .orElse(null);
+    }
+    
+    private String resolveSessionId(String sessionId, Long userId) {
+        if (sessionId != null && !sessionId.isBlank()) {
+            return sessionId;
+        }
+        if (userId != null) {
+            // canonical session id for authenticated carts
+            return "user-" + userId;
+        }
+        throw new IllegalArgumentException("X-Session-Id header is required for guests");
     }
 }
