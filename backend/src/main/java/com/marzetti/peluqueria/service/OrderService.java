@@ -26,8 +26,16 @@ public class OrderService {
     private final ProductRepository productRepository;
     
     @Transactional
-    public OrderDTO createOrder(String sessionId, CreateOrderRequest request) {
-        List<CartItem> cartItems = cartItemRepository.findBySessionId(sessionId);
+    public OrderDTO createOrder(String sessionId, Long userId, CreateOrderRequest request) {
+        List<CartItem> cartItems;
+        if (userId != null) {
+            cartItems = cartItemRepository.findByUserId(userId);
+            if (cartItems.isEmpty()) {
+                cartItems = cartItemRepository.findBySessionId(sessionId);
+            }
+        } else {
+            cartItems = cartItemRepository.findBySessionId(sessionId);
+        }
         
         if (cartItems.isEmpty()) {
             throw new RuntimeException("Cart is empty");
@@ -72,7 +80,11 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
         
         // Clear cart
-        cartItemRepository.deleteBySessionId(sessionId);
+        if (userId != null) {
+            cartItemRepository.deleteByUserId(userId);
+        } else {
+            cartItemRepository.deleteBySessionId(sessionId);
+        }
         
         return convertToDTO(savedOrder);
     }

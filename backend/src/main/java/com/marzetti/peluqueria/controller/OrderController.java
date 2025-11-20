@@ -2,11 +2,15 @@ package com.marzetti.peluqueria.controller;
 
 import com.marzetti.peluqueria.dto.CreateOrderRequest;
 import com.marzetti.peluqueria.dto.OrderDTO;
+import com.marzetti.peluqueria.entity.User;
+import com.marzetti.peluqueria.repository.UserRepository;
 import com.marzetti.peluqueria.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,13 +20,16 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
     
     private final OrderService orderService;
+    private final UserRepository userRepository;
     
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(
             @RequestHeader("X-Session-Id") String sessionId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody CreateOrderRequest request
     ) {
-        OrderDTO order = orderService.createOrder(sessionId, request);
+        Long userId = resolveUserId(userDetails);
+        OrderDTO order = orderService.createOrder(sessionId, userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
     
@@ -58,5 +65,14 @@ public class OrderController {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Error updating order status: " + e.getMessage());
         }
+    }
+    
+    private Long resolveUserId(UserDetails userDetails) {
+        if (userDetails == null) {
+            return null;
+        }
+        return userRepository.findByUsername(userDetails.getUsername())
+                .map(User::getId)
+                .orElse(null);
     }
 }

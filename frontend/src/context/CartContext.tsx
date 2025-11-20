@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { cartApi } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from './AuthContext';
 
 interface CartItem {
     id: number;
@@ -38,6 +39,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [cart, setCart] = useState<Cart | null>(null);
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
+    const { token } = useAuth();
 
     const refreshCart = async () => {
         try {
@@ -126,7 +128,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         refreshCart();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [token]);
 
     return (
         <CartContext.Provider

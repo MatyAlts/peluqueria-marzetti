@@ -23,6 +23,12 @@ const getSessionId = (): string => {
 // Add session ID to all requests
 api.interceptors.request.use((config) => {
     config.headers['X-Session-Id'] = getSessionId();
+    if (!config.headers['Authorization']) {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+    }
     return config;
 });
 
@@ -78,6 +84,8 @@ export const orderApi = {
 export const authApi = {
     login: (username: string, password: string) =>
         api.post('/auth/login', { username, password }),
+    register: (username: string, email: string, password: string) =>
+        api.post('/auth/register', { username, email, password }),
 };
 
 // Payment API

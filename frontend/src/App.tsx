@@ -29,46 +29,51 @@ import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import CheckoutPendingPage from "./pages/CheckoutPendingPage";
 import CheckoutFailurePage from "./pages/CheckoutFailurePage";
 import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
+import AuthPage from "./pages/AuthPage";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <CartProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/servicios" element={<ServicesPage />} />
-              <Route path="/catalogo" element={<CatalogPage />} />
-              <Route path="/catalogo/:id" element={<ProductDetailPage />} />
-              <Route path="/carrito" element={<CartPage />} />
-              <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
-              <Route path="/checkout/pending" element={<CheckoutPendingPage />} />
-              <Route path="/checkout/failure" element={<CheckoutFailurePage />} />
-              <Route path="/promociones" element={<PromotionsPage />} />
-              <Route path="/turnos" element={<AppointmentsPage />} />
-              <Route path="/testimonios" element={<TestimonialsPage />} />
-              <Route path="/nosotros" element={<AboutUsPage />} />
-              <Route path="/contacto" element={<ContactPage />} />
-              <Route path="/preguntas-frecuentes" element={<FAQPage />} />
-              <Route path="/politica-privacidad" element={<PrivacyPolicyPage />} />
-              <Route path="/terminos-condiciones" element={<TermsAndConditionsPage />} />
-              <Route path="/devoluciones" element={<ReturnsPolicyPage />} />
-              <Route path="/admin/login" element={<AdminLoginPage />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/productos" element={<AdminProducts />} />
-              <Route path="/admin/categorias" element={<AdminCategories />} />
-              <Route path="/admin/promociones" element={<AdminPromotions />} />
-              <Route path="/admin/ventas" element={<AdminOrders />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </BrowserRouter>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/servicios" element={<ServicesPage />} />
+                <Route path="/catalogo" element={<CatalogPage />} />
+                <Route path="/catalogo/:id" element={<ProductDetailPage />} />
+                <Route path="/carrito" element={<CartPage />} />
+                <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
+                <Route path="/checkout/pending" element={<CheckoutPendingPage />} />
+                <Route path="/checkout/failure" element={<CheckoutFailurePage />} />
+                <Route path="/promociones" element={<PromotionsPage />} />
+                <Route path="/turnos" element={<AppointmentsPage />} />
+                <Route path="/testimonios" element={<TestimonialsPage />} />
+                <Route path="/nosotros" element={<AboutUsPage />} />
+                <Route path="/contacto" element={<ContactPage />} />
+                <Route path="/preguntas-frecuentes" element={<FAQPage />} />
+                <Route path="/politica-privacidad" element={<PrivacyPolicyPage />} />
+                <Route path="/terminos-condiciones" element={<TermsAndConditionsPage />} />
+                <Route path="/devoluciones" element={<ReturnsPolicyPage />} />
+                <Route path="/cuenta" element={<AuthPage />} />
+                <Route path="/admin/login" element={<AdminLoginPage />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/productos" element={<AdminProducts />} />
+                <Route path="/admin/categorias" element={<AdminCategories />} />
+                <Route path="/admin/promociones" element={<AdminPromotions />} />
+                <Route path="/admin/ventas" element={<AdminOrders />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          </BrowserRouter>
+        </CartProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

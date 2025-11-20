@@ -23,8 +23,18 @@ public class CartService {
     private final ProductRepository productRepository;
     private final ProductService productService;
     
-    public CartDTO getCart(String sessionId) {
+    public CartDTO getCart(String sessionId, Long userId) {
+        if (userId != null) {
+            mergeSessionCartIntoUser(sessionId, userId);
+            List<CartItem> userItems = cartItemRepository.findByUserId(userId);
+            return buildCartDTO(userItems);
+        }
+        
         List<CartItem> cartItems = cartItemRepository.findBySessionId(sessionId);
+        return buildCartDTO(cartItems);
+    }
+    
+    private CartDTO buildCartDTO(List<CartItem> cartItems) {
         List<CartItemDTO> itemDTOs = cartItems.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -41,7 +51,7 @@ public class CartService {
     }
     
     @Transactional
-    public CartItemDTO addToCart(String sessionId, AddToCartRequest request) {
+    public CartItemDTO addToCart(String sessionId, Long userId, AddToCartRequest request) {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         
@@ -49,8 +59,9 @@ public class CartService {
             throw new RuntimeException("Insufficient stock");
         }
         
-        // Check if product already in cart
-        var existingItem = cartItemRepository.findBySessionIdAndProductId(sessionId, request.getProductId());
+        var existingItem = (userId != null)
+                ? cartItemRepository.findByUserIdAndProductId(userId, request.getProductId())
+                : cartItemRepository.findBySessionIdAndProductId(sessionId, request.getProductId());
         
         CartItem cartItem;
         if (existingItem.isPresent()) {
@@ -67,6 +78,7 @@ public class CartService {
             cartItem.setProduct(product);
             cartItem.setQuantity(request.getQuantity());
             cartItem.setSessionId(sessionId);
+            cartItem.setUserId(userId);
         }
         
         CartItem saved = cartItemRepository.save(cartItem);
@@ -74,9 +86,13 @@ public class CartService {
     }
     
     @Transactional
-    public CartItemDTO updateCartItem(Long cartItemId, Integer quantity) {
+    public CartItemDTO updateCartItem(Long cartItemId, Integer quantity, Long userId) {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));
+        
+        if (userId != null && cartItem.getUserId() != null && !userId.equals(cartItem.getUserId())) {
+            throw new RuntimeException("No autorizado para modificar este item");
+        }
         
         if (quantity <= 0) {
             throw new RuntimeException("Quantity must be greater than 0");
@@ -92,16 +108,27 @@ public class CartService {
     }
     
     @Transactional
-    public void removeCartItem(Long cartItemId) {
+    public void removeCartItem(Long cartItemId, Long userId) {
         if (!cartItemRepository.existsById(cartItemId)) {
             throw new RuntimeException("Cart item not found");
+        }
+        if (userId != null) {
+            CartItem cartItem = cartItemRepository.findById(cartItemId)
+                    .orElseThrow(() -> new RuntimeException("Cart item not found"));
+            if (cartItem.getUserId() != null && !userId.equals(cartItem.getUserId())) {
+                throw new RuntimeException("No autorizado para eliminar este item");
+            }
         }
         cartItemRepository.deleteById(cartItemId);
     }
     
     @Transactional
-    public void clearCart(String sessionId) {
-        cartItemRepository.deleteBySessionId(sessionId);
+    public void clearCart(String sessionId, Long userId) {
+        if (userId != null) {
+            cartItemRepository.deleteByUserId(userId);
+        } else {
+            cartItemRepository.deleteBySessionId(sessionId);
+        }
     }
     
     private CartItemDTO convertToDTO(CartItem cartItem) {
@@ -114,5 +141,35 @@ public class CartService {
                 cartItem.getQuantity(),
                 subtotal
         );
+    }
+    
+    @Transactional
+    protected void mergeSessionCartIntoUser(String sessionId, Long userId) {
+        if (userId == null) {
+            return;
+        }
+        List<CartItem> sessionItems = cartItemRepository.findBySessionId(sessionId);
+        if (sessionItems.isEmpty()) {
+            return;
+        }
+        List<CartItem> userItems = cartItemRepository.findByUserId(userId);
+        
+        for (CartItem sessionItem : sessionItems) {
+            var existingUserItem = userItems.stream()
+                    .filter(ui -> ui.getProduct().getId().equals(sessionItem.getProduct().getId()))
+                    .findFirst();
+            
+            if (existingUserItem.isPresent()) {
+                CartItem userItem = existingUserItem.get();
+                int mergedQuantity = userItem.getQuantity() + sessionItem.getQuantity();
+                userItem.setQuantity(Math.min(mergedQuantity, sessionItem.getProduct().getStock()));
+                cartItemRepository.save(userItem);
+            } else {
+                sessionItem.setUserId(userId);
+                sessionItem.setSessionId("user-" + userId);
+                cartItemRepository.save(sessionItem);
+            }
+        }
+        cartItemRepository.deleteBySessionId(sessionId);
     }
 }

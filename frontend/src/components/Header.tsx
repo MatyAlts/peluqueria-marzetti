@@ -1,13 +1,17 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ShoppingCart } from "lucide-react";
-import { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "./ui/button";
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cart } = useCart();
+  const auth = useAuth();
+  const hasAdminToken = Boolean(localStorage.getItem("adminToken")) || auth.role === "ADMIN";
 
   const navItems = [
     { name: "Inicio", path: "/" },
@@ -19,10 +23,48 @@ const Header = () => {
     { name: "Contacto", path: "/contacto" },
   ];
 
+  const logout = () => {
+    auth.logout();
+    setIsMenuOpen(false);
+    navigate("/");
+  };
+
+  const renderAuthButtons = (variant: "desktop" | "mobile") => (
+    <div className={`flex items-center gap-3 ${variant === "mobile" ? "mt-3" : ""}`}>
+      {hasAdminToken && (
+        <Button asChild variant="outline" size="sm">
+          <Link to="/admin">Admin</Link>
+        </Button>
+      )}
+      {auth.token ? (
+        <>
+          <span className="text-sm text-white/80">
+            Hola, <strong>{auth.username}</strong>
+          </span>
+          <Button variant="ghost" size="sm" className="text-white" onClick={logout}>
+            Cerrar sesión
+          </Button>
+        </>
+      ) : (
+        <Button
+          variant="secondary"
+          size="sm"
+          className="bg-white text-marzetti-primary hover:bg-marzetti-primary hover:text-white"
+          asChild
+        >
+          <Link to="/cuenta">Ingresar / Crear cuenta</Link>
+        </Button>
+      )}
+    </div>
+  );
+
   return (
     <header className="sticky top-0 z-50 bg-marzetti-secondary shadow-lg">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-3xl font-bold text-marzetti-primary animate-fadeIn hover:scale-105 transition-transform duration-300">
+        <Link
+          to="/"
+          className="text-3xl font-bold text-marzetti-primary animate-fadeIn hover:scale-105 transition-transform duration-300"
+        >
           Peluquería Marzetti
         </Link>
 
@@ -31,10 +73,11 @@ const Header = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`text-lg transition-all duration-300 hover:text-marzetti-primary hover:scale-110 ${location.pathname === item.path
-                ? "text-marzetti-primary font-bold border-b-2 border-marzetti-primary"
-                : "text-white"
-                }`}
+              className={`text-lg transition-all duration-300 hover:text-marzetti-primary hover:scale-110 ${
+                location.pathname === item.path
+                  ? "text-marzetti-primary font-bold border-b-2 border-marzetti-primary"
+                  : "text-white"
+              }`}
             >
               {item.name}
             </Link>
@@ -50,6 +93,7 @@ const Header = () => {
               </span>
             )}
           </Link>
+          {renderAuthButtons("desktop")}
         </nav>
 
         <button
@@ -66,8 +110,9 @@ const Header = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`block text-lg transition-colors duration-300 hover:text-marzetti-primary ${location.pathname === item.path ? "text-marzetti-primary font-bold" : "text-white"
-                }`}
+              className={`block text-lg transition-colors duration-300 hover:text-marzetti-primary ${
+                location.pathname === item.path ? "text-marzetti-primary font-bold" : "text-white"
+              }`}
               onClick={() => setIsMenuOpen(false)}
             >
               {item.name}
@@ -81,6 +126,7 @@ const Header = () => {
             <ShoppingCart className="h-5 w-5" />
             Carrito {cart && cart.itemCount > 0 && `(${cart.itemCount})`}
           </Link>
+          {renderAuthButtons("mobile")}
         </nav>
       )}
     </header>
