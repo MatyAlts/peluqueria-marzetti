@@ -23,6 +23,9 @@ import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminCategories from "./pages/admin/AdminCategories";
+import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
+import CheckoutPendingPage from "./pages/CheckoutPendingPage";
+import CheckoutFailurePage from "./pages/CheckoutFailurePage";
 import { CartProvider } from "./context/CartContext";
 
 const queryClient = new QueryClient();
@@ -41,6 +44,9 @@ const App = () => (
               <Route path="/catalogo" element={<CatalogPage />} />
               <Route path="/catalogo/:id" element={<ProductDetailPage />} />
               <Route path="/carrito" element={<CartPage />} />
+              <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
+              <Route path="/checkout/pending" element={<CheckoutPendingPage />} />
+              <Route path="/checkout/failure" element={<CheckoutFailurePage />} />
               <Route path="/promociones" element={<PromotionsPage />} />
               <Route path="/turnos" element={<AppointmentsPage />} />
               <Route path="/testimonios" element={<TestimonialsPage />} />
