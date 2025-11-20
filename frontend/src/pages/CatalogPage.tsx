@@ -60,6 +60,9 @@ const CatalogPage: React.FC = () => {
   // Filter products based on search, category, and price
   const filteredProducts = React.useMemo(() => {
     return products.filter((product) => {
+      // Skip products with missing data
+      if (!product || !product.name || !product.brand) return false;
+
       // Filter by search term
       const matchesSearch = !searchTerm ||
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,7 +70,7 @@ const CatalogPage: React.FC = () => {
 
       // Filter by category (using category ID for exact match)
       const matchesCategory = selectedCategory === "all" ||
-        (product.category && product.category.id.toString() === selectedCategory);
+        (product.category && product.category.id && product.category.id.toString() === selectedCategory);
 
       // Filter by price range
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
@@ -121,7 +124,7 @@ const CatalogPage: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas las categorías</SelectItem>
-                  {categories.map((category) => (
+                  {categories.filter(cat => cat && cat.id).map((category) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
                       {category.name}
                     </SelectItem>
