@@ -26,7 +26,8 @@ const ProductDetailPage: React.FC = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const { addToCart, loading: cartLoading } = useCart();
+  const [addingToCart, setAddingToCart] = useState(false);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -47,7 +48,12 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = async () => {
     if (product) {
-      await addToCart(product.id, quantity);
+      setAddingToCart(true);
+      try {
+        await addToCart(product.id, quantity);
+      } finally {
+        setAddingToCart(false);
+      }
     }
   };
 
@@ -155,13 +161,12 @@ const ProductDetailPage: React.FC = () => {
                 +
               </Button>
             </div>
-            <Button
+                        <Button
               className="flex-grow bg-marzetti-primary hover:bg-marzetti-primary-hover text-marzetti-secondary hover:text-white text-lg py-3 transition-all duration-300"
               onClick={handleAddToCart}
-              disabled={cartLoading || product.stock === 0}
+              disabled={addingToCart || product.stock === 0}
             >
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              {cartLoading ? 'Agregando...' : 'Agregar al carrito'}
+              {addingToCart ? 'Agregando...' : 'Agregar al carrito'}
             </Button>
           </div>
 

@@ -19,11 +19,17 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart, loading } = useCart();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleAddToCart = async () => {
-    await addToCart(Number(product.id), 1);
+    setIsLoading(true);
+    try {
+      await addToCart(Number(product.id), 1);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleViewDetail = () => {
@@ -65,10 +71,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <CardFooter className="p-4 pt-0 flex flex-col space-y-2">
         <Button
           onClick={handleAddToCart}
-          disabled={loading}
+          disabled={isLoading}
           className="w-full bg-marzetti-primary hover:bg-marzetti-primary-hover text-marzetti-secondary hover:text-white transition-all duration-300"
         >
-          {loading ? 'Agregando...' : 'Agregar al carrito'}
+          {isLoading ? 'Agregando...' : 'Agregar al carrito'}
         </Button>
         <Button
           onClick={handleViewDetail}
