@@ -14,6 +14,7 @@ const CheckoutSuccessPage: React.FC = () => {
     const [searchParams] = useSearchParams();
     const { clearCart } = useCart();
     const hasProcessed = useRef(false);
+    const [webhookStatus, setWebhookStatus] = React.useState<'pending' | 'success' | 'error'>('pending');
 
     const paymentId = searchParams.get('payment_id');
     const status = searchParams.get('status');
@@ -60,10 +61,12 @@ const CheckoutSuccessPage: React.FC = () => {
                             totalAmount: orderData.totalAmount
                         };
                         console.log('Sending webhook notification:', webhookPayload);
-                        await axios.post('https://belmontelucero-n8n.326kz3.easypanel.host/webhook/paid-success', webhookPayload);
-                        console.log('Webhook notification sent successfully');
+                        const webhookResponse = await axios.post('https://belmontelucero-n8n.326kz3.easypanel.host/webhook/paid-success', webhookPayload);
+                        console.log('Webhook notification sent successfully:', webhookResponse.status);
+                        setWebhookStatus('success');
                     } catch (webhookError: any) {
                         console.error('Error sending webhook notification:', webhookError?.response?.data || webhookError?.message || webhookError);
+                        setWebhookStatus('error');
                         // Don't fail the whole process if webhook fails
                     }
                 } catch (error: any) {
@@ -128,6 +131,12 @@ const CheckoutSuccessPage: React.FC = () => {
                                         Recibirás un email de confirmación con los detalles de tu compra. 
                                         Si realizaste una reserva de turno, te contactaremos pronto para confirmar.
                                     </p>
+                                    {webhookStatus === 'success' && (
+                                        <p className="text-xs text-green-600 mt-2">✓ Notificación enviada correctamente</p>
+                                    )}
+                                    {webhookStatus === 'error' && (
+                                        <p className="text-xs text-orange-600 mt-2">⚠ Notificación pendiente (te contactaremos pronto)</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
