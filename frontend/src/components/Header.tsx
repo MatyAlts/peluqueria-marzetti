@@ -61,12 +61,12 @@ const Header = () => {
       </div>
 
       {isMenuOpen && (
-        <nav className="md:hidden bg-marzetti-card px-4 py-6 space-y-4 animate-slideDown">
+        <nav className="md:hidden bg-marzetti-secondary px-4 py-6 space-y-4 animate-slideDown border-t border-marzetti-primary/20">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`block text-lg transition-colors duration-300 hover:text-marzetti-primary ${location.pathname === item.path ? "text-marzetti-primary font-bold" : "text-white"
+              className={`block text-lg transition-colors duration-300 hover:text-marzetti-primary ${location.pathname === item.path ? "text-marzetti-primary font-bold" : "text-marzetti-text-primary"
                 }`}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -75,7 +75,7 @@ const Header = () => {
           ))}
           <Link
             to="/carrito"
-            className="flex items-center gap-2 text-lg text-white hover:text-marzetti-primary transition-colors duration-300"
+            className="flex items-center gap-2 text-lg text-marzetti-text-primary hover:text-marzetti-primary transition-colors duration-300"
             onClick={() => setIsMenuOpen(false)}
           >
             <ShoppingCart className="h-5 w-5" />
