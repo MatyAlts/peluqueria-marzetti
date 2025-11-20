@@ -1,5 +1,6 @@
 package com.marzetti.peluqueria.service;
 
+import com.marzetti.peluqueria.dto.CategoryDTO;
 import com.marzetti.peluqueria.dto.ProductDTO;
 import com.marzetti.peluqueria.entity.Category;
 import com.marzetti.peluqueria.entity.Product;
@@ -99,8 +100,15 @@ public class ProductService {
         dto.setHowToUse(product.getHowToUse());
         dto.setStock(product.getStock());
         dto.setBadgesFromString(product.getBadges());
-        dto.setCategory(product.getCategory().getName());
+        
+        // Create CategoryDTO object
+        CategoryDTO categoryDTO = new CategoryDTO();
+        categoryDTO.setId(product.getCategory().getId());
+        categoryDTO.setName(product.getCategory().getName());
+        categoryDTO.setDescription(product.getCategory().getDescription());
+        dto.setCategory(categoryDTO);
         dto.setCategoryId(product.getCategory().getId());
+        
         return dto;
     }
 }

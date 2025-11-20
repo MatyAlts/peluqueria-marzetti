@@ -22,8 +22,8 @@ public class ProductDTO {
     private String howToUse;
     private Integer stock;
     private List<String> badges;
-    private String category;
-    private Long categoryId;
+    private CategoryDTO category;
+    private Long categoryId; // Kept for backward compatibility in create/update
     
     // Helper method to convert comma-separated badges to list
     public void setBadgesFromString(String badgesStr) {
