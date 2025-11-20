@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import PageTemplate from '@/components/PageTemplate';
 import { Button } from '@/components/ui/button';
@@ -10,14 +10,18 @@ const CheckoutSuccessPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { clearCart } = useCart();
+    const hasCleared = useRef(false);
 
     const paymentId = searchParams.get('payment_id');
     const status = searchParams.get('status');
     const merchantOrder = searchParams.get('merchant_order_id');
 
     useEffect(() => {
-        // Limpiar el carrito después de un pago exitoso
-        clearCart();
+        // Limpiar el carrito después de un pago exitoso (solo una vez)
+        if (!hasCleared.current) {
+            clearCart();
+            hasCleared.current = true;
+        }
     }, [clearCart]);
 
     return (
