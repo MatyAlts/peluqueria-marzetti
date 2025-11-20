@@ -14,6 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
@@ -28,7 +30,8 @@ public class CartController {
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
             @AuthenticationPrincipal UserDetails userDetails) {
         Long userId = resolveUserId(userDetails);
-        CartDTO cart = cartService.getCart(resolveSessionId(sessionId, userId), userId);
+        String sid = resolveSessionId(sessionId, userId);
+        CartDTO cart = cartService.getCart(sid, userId);
         return ResponseEntity.ok(cart);
     }
     
@@ -88,6 +91,7 @@ public class CartController {
             // canonical session id for authenticated carts
             return "user-" + userId;
         }
-        throw new IllegalArgumentException("X-Session-Id header is required for guests");
+        // fallback to a generated guest session to avoid 400s if header is missing
+        return "guest-" + UUID.randomUUID();
     }
 }
