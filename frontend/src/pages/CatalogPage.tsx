@@ -67,7 +67,7 @@ const CatalogPage: React.FC = () => {
 
       // Filter by category (using category ID for exact match)
       const matchesCategory = selectedCategory === "all" ||
-        product.category.id.toString() === selectedCategory;
+        (product.category && product.category.id.toString() === selectedCategory);
 
       // Filter by price range
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
