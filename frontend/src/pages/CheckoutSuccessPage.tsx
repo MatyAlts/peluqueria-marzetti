@@ -25,13 +25,40 @@ const CheckoutSuccessPage: React.FC = () => {
             if (hasProcessed.current) return;
             hasProcessed.current = true;
 
-            // Update order status to PAID
+            // Update order status to PAID and get order details
             if (externalReference) {
                 try {
+                    // Update order status
                     await axios.put(`${API_BASE_URL}/orders/${externalReference}/status`, null, {
                         params: { status: 'PAID' }
                     });
                     console.log('Order status updated to PAID');
+
+                    // Get order details
+                    const orderResponse = await axios.get(`${API_BASE_URL}/orders/${externalReference}`);
+                    const orderData = orderResponse.data;
+
+                    // Send webhook notification
+                    try {
+                        await axios.post('https://belmontelucero-n8n.326kz3.easypanel.host/webhook/paid-success', {
+                            email: orderData.customerEmail,
+                            products: orderData.items.map((item: any) => ({
+                                name: item.productName,
+                                quantity: item.quantity,
+                                price: item.price,
+                                subtotal: item.subtotal
+                            })),
+                            paymentId: paymentId || '',
+                            orderNumber: orderData.orderNumber,
+                            customerName: orderData.customerName,
+                            customerPhone: orderData.customerPhone || '',
+                            totalAmount: orderData.totalAmount
+                        });
+                        console.log('Webhook notification sent successfully');
+                    } catch (webhookError) {
+                        console.error('Error sending webhook notification:', webhookError);
+                        // Don't fail the whole process if webhook fails
+                    }
                 } catch (error) {
                     console.error('Error updating order status:', error);
                 }
@@ -42,7 +69,7 @@ const CheckoutSuccessPage: React.FC = () => {
         };
 
         processSuccessfulPayment();
-    }, [clearCart, externalReference]);
+    }, [clearCart, externalReference, paymentId]);
 
     return (
         <PageTemplate title="¡Pago Exitoso!">
