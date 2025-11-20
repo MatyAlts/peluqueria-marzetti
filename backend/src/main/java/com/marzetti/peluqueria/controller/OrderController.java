@@ -37,13 +37,19 @@ public class OrderController {
             @PathVariable String orderNumber,
             @RequestParam String status) {
         try {
+            System.out.println("Updating order status: orderNumber=" + orderNumber + ", status=" + status);
             com.marzetti.peluqueria.entity.Order.OrderStatus newStatus = 
                 com.marzetti.peluqueria.entity.Order.OrderStatus.valueOf(status.toUpperCase());
             orderService.updateOrderStatus(orderNumber, newStatus);
+            System.out.println("Order status updated successfully");
             return ResponseEntity.ok().body("Order status updated successfully");
         } catch (IllegalArgumentException e) {
+            System.err.println("Invalid status: " + status);
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Invalid status: " + status);
         } catch (Exception e) {
+            System.err.println("Error updating order status: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.internalServerError().body("Error updating order status: " + e.getMessage());
         }
     }

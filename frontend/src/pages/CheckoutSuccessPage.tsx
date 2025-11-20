@@ -25,22 +25,27 @@ const CheckoutSuccessPage: React.FC = () => {
             if (hasProcessed.current) return;
             hasProcessed.current = true;
 
+            console.log('Processing successful payment...', { externalReference, paymentId, status });
+
             // Update order status to PAID and get order details
             if (externalReference) {
                 try {
                     // Update order status
-                    await axios.put(`${API_BASE_URL}/orders/${externalReference}/status`, null, {
+                    console.log('Updating order status to PAID for:', externalReference);
+                    const updateResponse = await axios.put(`${API_BASE_URL}/orders/${externalReference}/status`, null, {
                         params: { status: 'PAID' }
                     });
-                    console.log('Order status updated to PAID');
+                    console.log('Order status updated successfully:', updateResponse.data);
 
                     // Get order details
+                    console.log('Fetching order details...');
                     const orderResponse = await axios.get(`${API_BASE_URL}/orders/${externalReference}`);
                     const orderData = orderResponse.data;
+                    console.log('Order details:', orderData);
 
                     // Send webhook notification
                     try {
-                        await axios.post('https://belmontelucero-n8n.326kz3.easypanel.host/webhook/paid-success', {
+                        const webhookPayload = {
                             email: orderData.customerEmail,
                             products: orderData.items.map((item: any) => ({
                                 name: item.productName,
@@ -53,15 +58,19 @@ const CheckoutSuccessPage: React.FC = () => {
                             customerName: orderData.customerName,
                             customerPhone: orderData.customerPhone || '',
                             totalAmount: orderData.totalAmount
-                        });
+                        };
+                        console.log('Sending webhook notification:', webhookPayload);
+                        await axios.post('https://belmontelucero-n8n.326kz3.easypanel.host/webhook/paid-success', webhookPayload);
                         console.log('Webhook notification sent successfully');
-                    } catch (webhookError) {
-                        console.error('Error sending webhook notification:', webhookError);
+                    } catch (webhookError: any) {
+                        console.error('Error sending webhook notification:', webhookError?.response?.data || webhookError?.message || webhookError);
                         // Don't fail the whole process if webhook fails
                     }
-                } catch (error) {
-                    console.error('Error updating order status:', error);
+                } catch (error: any) {
+                    console.error('Error updating order status:', error?.response?.data || error?.message || error);
                 }
+            } else {
+                console.warn('No external_reference found in URL parameters');
             }
 
             // Clear cart
@@ -69,7 +78,7 @@ const CheckoutSuccessPage: React.FC = () => {
         };
 
         processSuccessfulPayment();
-    }, [clearCart, externalReference, paymentId]);
+    }, [clearCart, externalReference, paymentId, status]);
 
     return (
         <PageTemplate title="¡Pago Exitoso!">
