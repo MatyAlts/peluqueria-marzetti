@@ -8,8 +8,9 @@ import { orderApi, paymentApi } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
-// Initialize MercadoPago with Public Key
-initMercadoPago('APP_USR-343cc514-310b-4641-83b9-8815a0b31cf0', { locale: 'es-AR' });
+// Initialize MercadoPago with Public Key from environment variable
+const MERCADOPAGO_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || 'APP_USR-343cc514-310b-4641-83b9-8815a0b31cf0';
+initMercadoPago(MERCADOPAGO_PUBLIC_KEY, { locale: 'es-AR' });
 
 const CartPage: React.FC = () => {
     const { cart, loading, updateQuantity, removeItem, clearCart } = useCart();

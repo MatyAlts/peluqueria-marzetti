@@ -25,6 +25,15 @@ public class PaymentController {
     @Autowired
     private OrderRepository orderRepository;
 
+    @org.springframework.beans.factory.annotation.Value("${mercadopago.success-url}")
+    private String successUrl;
+
+    @org.springframework.beans.factory.annotation.Value("${mercadopago.pending-url}")
+    private String pendingUrl;
+
+    @org.springframework.beans.factory.annotation.Value("${mercadopago.failure-url}")
+    private String failureUrl;
+
     @PostMapping("/create_preference/{orderNumber}")
     public ResponseEntity<PaymentPreferenceDTO> createPreference(@PathVariable String orderNumber) {
         try {
@@ -44,9 +53,9 @@ public class PaymentController {
             }
 
             PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-                    .success("http://localhost:5173/checkout/success")
-                    .pending("http://localhost:5173/checkout/pending")
-                    .failure("http://localhost:5173/checkout/failure")
+                    .success(successUrl)
+                    .pending(pendingUrl)
+                    .failure(failureUrl)
                     .build();
 
             com.mercadopago.client.preference.PreferencePayerRequest payer = com.mercadopago.client.preference.PreferencePayerRequest

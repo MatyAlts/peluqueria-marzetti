@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-https://matyalts-peluqueriamarzetti.326kz3.easypanel.host/api}
+        VITE_MERCADOPAGO_PUBLIC_KEY: ${VITE_MERCADOPAGO_PUBLIC_KEY}
     image: peluqueria-frontend:latest
     container_name: peluqueria-frontend
     ports:

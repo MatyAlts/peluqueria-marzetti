@@ -30,6 +30,9 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
       MERCADOPAGO_ACCESS_TOKEN: ${MERCADOPAGO_ACCESS_TOKEN}
       MERCADOPAGO_PUBLIC_KEY: ${MERCADOPAGO_PUBLIC_KEY}
+      MERCADOPAGO_SUCCESS_URL: ${MERCADOPAGO_SUCCESS_URL}
+      MERCADOPAGO_PENDING_URL: ${MERCADOPAGO_PENDING_URL}
+      MERCADOPAGO_FAILURE_URL: ${MERCADOPAGO_FAILURE_URL}
       API_DOCS_PATH: ${API_DOCS_PATH:-/api-docs}
       SWAGGER_UI_PATH: ${SWAGGER_UI_PATH:-/swagger-ui.html}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
@@ -41,6 +44,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-/api}
+        VITE_MERCADOPAGO_PUBLIC_KEY: ${VITE_MERCADOPAGO_PUBLIC_KEY}
     image: peluqueria-frontend:latest
     container_name: peluqueria-frontend
     restart: unless-stopped

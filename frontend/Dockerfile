@@ -2,9 +2,11 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Argumento para la URL del API (ruta relativa por defecto para usar con Nginx)
+# Argumentos para variables de entorno
 ARG VITE_API_URL=/api
+ARG VITE_MERCADOPAGO_PUBLIC_KEY
 ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_MERCADOPAGO_PUBLIC_KEY=$VITE_MERCADOPAGO_PUBLIC_KEY
 
 # Copiar archivos de configuración
 COPY package.json pnpm-lock.yaml ./
