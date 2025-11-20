@@ -26,6 +26,12 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
     
+    @GetMapping
+    public ResponseEntity<java.util.List<OrderDTO>> getAllOrders() {
+        java.util.List<OrderDTO> orders = orderService.getAllOrders();
+        return ResponseEntity.ok(orders);
+    }
+    
     @GetMapping("/{orderNumber}")
     public ResponseEntity<OrderDTO> getOrderByNumber(@PathVariable String orderNumber) {
         OrderDTO order = orderService.getOrderByNumber(orderNumber);

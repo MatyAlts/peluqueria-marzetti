@@ -83,6 +83,14 @@ public class OrderService {
         return convertToDTO(order);
     }
     
+    public List<OrderDTO> getAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream()
+                .map(this::convertToDTO)
+                .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
+                .collect(Collectors.toList());
+    }
+    
     @Transactional
     public void updateOrderStatus(String orderNumber, Order.OrderStatus newStatus) {
         Order order = orderRepository.findByOrderNumber(orderNumber)

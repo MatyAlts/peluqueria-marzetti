@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, FolderTree, LogOut } from 'lucide-react';
+import { Package, FolderTree, LogOut, ShoppingBag } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -44,7 +44,23 @@ const AdminDashboard: React.FC = () => {
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <Link to="/admin/ventas">
+                        <Card className="cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-marzetti-card">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-3 text-marzetti-text-primary">
+                                    <ShoppingBag className="h-8 w-8 text-marzetti-primary" />
+                                    CRM de Ventas
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-marzetti-text-secondary">
+                                    Ver y gestionar todas las ventas realizadas
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </Link>
+
                     <Link to="/admin/productos">
                         <Card className="cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-marzetti-card">
                             <CardHeader>
