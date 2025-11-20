@@ -86,7 +86,7 @@ const CheckoutSuccessPage: React.FC = () => {
                                 Volver al inicio
                             </Button>
                             <Button
-                                onClick={() => navigate('/catalog')}
+                                onClick={() => navigate('/catalogo')}
                                 className="flex-1"
                             >
                                 <Package className="w-4 h-4 mr-2" />

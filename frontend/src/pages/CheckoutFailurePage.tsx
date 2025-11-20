@@ -88,7 +88,7 @@ const CheckoutFailurePage: React.FC = () => {
                                 Volver al inicio
                             </Button>
                             <Button
-                                onClick={() => navigate('/cart')}
+                                onClick={() => navigate('/carrito')}
                                 className="flex-1 bg-red-600 hover:bg-red-700"
                             >
                                 <ShoppingCart className="w-4 h-4 mr-2" />
