@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-https://matyalts-peluqueriamarzetti.326kz3.easypanel.host/api}
+    image: peluqueria-frontend:latest
+    container_name: peluqueria-frontend
+    ports:
+      - "8084:80"
+    restart: unless-stopped

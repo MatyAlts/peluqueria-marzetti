@@ -1,0 +1,28 @@
+# Ignorar variables de entorno
+.env
+
+# Ignorar archivos de IDE
+.vscode/
+.idea/
+
+# Ignorar archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Node modules (frontend)
+frontend/node_modules/
+frontend/dist/
+frontend/.pnpm-store/
+
+# Maven (backend)
+backend/target/
+backend/.mvn/
+
+# Logs
+*.log
+logs/
+
+# Temporales
+*.tmp
+*.swp
+*~

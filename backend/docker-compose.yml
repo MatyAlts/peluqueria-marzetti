@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:alpine
+    container_name: peluqueria-db
+    environment:
+      POSTGRES_DB: peluqueria_marzetti
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: peluqueria-backend:latest
+    container_name: peluqueria-backend
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      SERVER_PORT: ${SERVER_PORT:-8080}
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DRIVER: ${DB_DRIVER:-org.postgresql.Driver}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      MERCADOPAGO_ACCESS_TOKEN: ${MERCADOPAGO_ACCESS_TOKEN}
+      MERCADOPAGO_PUBLIC_KEY: ${MERCADOPAGO_PUBLIC_KEY}
+      API_DOCS_PATH: ${API_DOCS_PATH:-/api-docs}
+      SWAGGER_UI_PATH: ${SWAGGER_UI_PATH:-/swagger-ui.html}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:5174}
+
+  nginx:
+    image: nginx:alpine
+    container_name: peluqueria-nginx
+    depends_on:
+      - backend
+    ports:
+      - "8083:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
