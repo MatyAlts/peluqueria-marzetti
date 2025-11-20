@@ -102,7 +102,7 @@ const AdminDashboard: React.FC = () => {
 
         <div className="mt-8">
           <Button onClick={() => navigate("/")} variant="outline">
-            <- Volver al sitio
+            {"<- Volver al sitio"}
           </Button>
         </div>
       </div>
