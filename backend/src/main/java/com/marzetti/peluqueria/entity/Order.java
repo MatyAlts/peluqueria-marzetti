@@ -48,11 +48,13 @@ public class Order {
     private LocalDateTime createdAt;
     
     public enum OrderStatus {
-        PENDING,
-        CONFIRMED,
-        PROCESSING,
-        SHIPPED,
-        DELIVERED,
-        CANCELLED
+        PENDING,        // Order created, waiting for payment
+        PAID,           // Payment confirmed
+        CONFIRMED,      // Order confirmed by admin
+        PROCESSING,     // Being prepared
+        SHIPPED,        // Shipped to customer
+        DELIVERED,      // Delivered
+        CANCELLED,      // Cancelled by customer or admin
+        REJECTED        // Payment rejected
     }
 }

@@ -67,6 +67,7 @@ public class PaymentController {
                     .items(items)
                     .backUrls(backUrls)
                     .payer(payer)
+                    .externalReference(orderNumber) // Include orderNumber to track payment
                     .build();
 
             PreferenceClient client = new PreferenceClient();

@@ -5,24 +5,44 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2, Package, Home } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 const CheckoutSuccessPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { clearCart } = useCart();
-    const hasCleared = useRef(false);
+    const hasProcessed = useRef(false);
 
     const paymentId = searchParams.get('payment_id');
     const status = searchParams.get('status');
     const merchantOrder = searchParams.get('merchant_order_id');
+    const externalReference = searchParams.get('external_reference'); // This should be the orderNumber
 
     useEffect(() => {
-        // Limpiar el carrito después de un pago exitoso (solo una vez)
-        if (!hasCleared.current) {
+        const processSuccessfulPayment = async () => {
+            if (hasProcessed.current) return;
+            hasProcessed.current = true;
+
+            // Update order status to PAID
+            if (externalReference) {
+                try {
+                    await axios.put(`${API_BASE_URL}/orders/${externalReference}/status`, null, {
+                        params: { status: 'PAID' }
+                    });
+                    console.log('Order status updated to PAID');
+                } catch (error) {
+                    console.error('Error updating order status:', error);
+                }
+            }
+
+            // Clear cart
             clearCart();
-            hasCleared.current = true;
-        }
-    }, [clearCart]);
+        };
+
+        processSuccessfulPayment();
+    }, [clearCart, externalReference]);
 
     return (
         <PageTemplate title="¡Pago Exitoso!">

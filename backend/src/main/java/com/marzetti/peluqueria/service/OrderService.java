@@ -62,10 +62,8 @@ public class OrderService {
             order.getItems().add(orderItem);
             total += orderItem.getSubtotal();
             
-            // Update product stock
-            var product = cartItem.getProduct();
-            product.setStock(product.getStock() - cartItem.getQuantity());
-            productRepository.save(product);
+            // NOTE: Stock will be reduced only when payment is confirmed
+            // See updateOrderStatus() method
         }
         
         order.setTotalAmount(total);
@@ -83,6 +81,44 @@ public class OrderService {
         Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new RuntimeException("Order not found with number: " + orderNumber));
         return convertToDTO(order);
+    }
+    
+    @Transactional
+    public void updateOrderStatus(String orderNumber, Order.OrderStatus newStatus) {
+        Order order = orderRepository.findByOrderNumber(orderNumber)
+                .orElseThrow(() -> new RuntimeException("Order not found with number: " + orderNumber));
+        
+        Order.OrderStatus oldStatus = order.getStatus();
+        order.setStatus(newStatus);
+        
+        // If payment is confirmed (PAID), reduce stock
+        if (newStatus == Order.OrderStatus.PAID && oldStatus != Order.OrderStatus.PAID) {
+            for (OrderItem item : order.getItems()) {
+                var product = productRepository.findById(item.getProductId())
+                        .orElseThrow(() -> new RuntimeException("Product not found: " + item.getProductId()));
+                
+                if (product.getStock() < item.getQuantity()) {
+                    throw new RuntimeException("Insufficient stock for product: " + product.getName());
+                }
+                
+                product.setStock(product.getStock() - item.getQuantity());
+                productRepository.save(product);
+            }
+        }
+        
+        // If payment is cancelled/rejected, restore stock if it was previously paid
+        if ((newStatus == Order.OrderStatus.CANCELLED || newStatus == Order.OrderStatus.REJECTED) 
+            && oldStatus == Order.OrderStatus.PAID) {
+            for (OrderItem item : order.getItems()) {
+                var product = productRepository.findById(item.getProductId())
+                        .orElseThrow(() -> new RuntimeException("Product not found: " + item.getProductId()));
+                
+                product.setStock(product.getStock() + item.getQuantity());
+                productRepository.save(product);
+            }
+        }
+        
+        orderRepository.save(order);
     }
     
     private String generateOrderNumber() {
