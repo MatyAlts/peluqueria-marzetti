@@ -65,9 +65,9 @@ const CatalogPage: React.FC = () => {
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.brand.toLowerCase().includes(searchTerm.toLowerCase());
 
-      // Filter by category
+      // Filter by category (using category ID for exact match)
       const matchesCategory = selectedCategory === "all" ||
-        product.category.name === selectedCategory;
+        product.category.id.toString() === selectedCategory;
 
       // Filter by price range
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
@@ -122,7 +122,7 @@ const CatalogPage: React.FC = () => {
                 <SelectContent>
                   <SelectItem value="all">Todas las categorías</SelectItem>
                   {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.name}>
+                    <SelectItem key={category.id} value={category.id.toString()}>
                       {category.name}
                     </SelectItem>
                   ))}
